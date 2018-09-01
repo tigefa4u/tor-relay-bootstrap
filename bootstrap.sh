@@ -30,7 +30,7 @@ fi
 # install tor and related packages
 echo "== Installing Tor and related packages"
 $minimal_apt_get_install deb.torproject.org-keyring tor tor-arm tor-geoipdb
-service tor stop
+#service tor stop
 
 # configure tor
 cp $PWD/etc/tor/torrc /etc/tor/torrc
@@ -45,8 +45,8 @@ cp $PWD/etc/iptables/rules.v4 /etc/iptables/rules.v4
 cp $PWD/etc/iptables/rules.v6 /etc/iptables/rules.v6
 chmod 600 /etc/iptables/rules.v4
 chmod 600 /etc/iptables/rules.v6
-iptables-restore < /etc/iptables/rules.v4
-ip6tables-restore < /etc/iptables/rules.v6
+#iptables-restore < /etc/iptables/rules.v4
+#ip6tables-restore < /etc/iptables/rules.v6
 
 $minimal_apt_get_install fail2ban
 
@@ -58,7 +58,7 @@ service unattended-upgrades restart
 
 # install apparmor
 $minimal_apt_get_install apparmor apparmor-profiles apparmor-utils
-sed -i.bak 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="\1 apparmor=1 security=apparmor"/' /etc/default/grub
+sed -i.bak 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="\1 apparmor=1 security=apparmor"/' /etc/default/grub#
 update-grub
 
 # install ntp (tlsdate is no longer available in Debian stable)
@@ -67,7 +67,7 @@ $minimal_apt_get_install ntp
 # install monit
 $minimal_apt_get_install monit
 cp $PWD/etc/monit/conf.d/tor-relay.conf /etc/monit/conf.d/tor-relay.conf
-service monit restart
+#service monit restart
 
 # configure sshd
 ORIG_USER=$(logname)

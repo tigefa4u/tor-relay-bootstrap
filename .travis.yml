@@ -1,0 +1,25 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    - NAME=tigefa/torelay
+    # - VERSION=${TRAVIS_TAG}
+    #- VERSION=${TRAVIS_BRANCH}
+
+script:
+  - docker build -t ${NAME} .
+  #- env NAME=${NAME} VERSION=${VERSION} ./test/runner.sh
+
+after_success:
+  - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}";
+    docker push ${NAME};
+  # - if [ "${TRAVIS_BRANCH}" == "master" ]; then
+  #   docker tag ${NAME}:${VERSION} ${NAME}:latest
+  #   docker push ${NAME}:latest;
+  #   fi
+
+notifications:
+  email: false

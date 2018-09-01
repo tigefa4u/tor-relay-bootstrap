@@ -1,4 +1,7 @@
 #!/bin/bash
+set -e
+source /bd_build/buildconfig
+set -x
 
 # check for root
 if [[ $EUID -ne 0 ]]; then
@@ -13,7 +16,7 @@ echo "== Updating software"
 apt-get update
 apt-get dist-upgrade -y
 
-apt-get install -y lsb-release apt-transport-https
+$minimal_apt_get_install lsb-release apt-transport-https
 
 # add official Tor repository
 if ! grep -q "https://deb.torproject.org/torproject.org" /etc/apt/sources.list; then
@@ -26,7 +29,7 @@ fi
 
 # install tor and related packages
 echo "== Installing Tor and related packages"
-apt-get install -y deb.torproject.org-keyring tor tor-arm tor-geoipdb
+$minimal_apt_get_install deb.torproject.org-keyring tor tor-arm tor-geoipdb
 service tor stop
 
 # configure tor
@@ -34,10 +37,10 @@ cp $PWD/etc/tor/torrc /etc/tor/torrc
 
 # configure firewall rules
 echo "== Configuring firewall rules"
-apt-get install -y debconf-utils
+$minimal_apt_get_install debconf-utils
 echo "iptables-persistent iptables-persistent/autosave_v6 boolean true" | debconf-set-selections
 echo "iptables-persistent iptables-persistent/autosave_v4 boolean true" | debconf-set-selections
-apt-get install -y iptables iptables-persistent
+$minimal_apt_get_install iptables iptables-persistent
 cp $PWD/etc/iptables/rules.v4 /etc/iptables/rules.v4
 cp $PWD/etc/iptables/rules.v6 /etc/iptables/rules.v6
 chmod 600 /etc/iptables/rules.v4
@@ -45,24 +48,24 @@ chmod 600 /etc/iptables/rules.v6
 iptables-restore < /etc/iptables/rules.v4
 ip6tables-restore < /etc/iptables/rules.v6
 
-apt-get install -y fail2ban
+$minimal_apt_get_install fail2ban
 
 # configure automatic updates
 echo "== Configuring unattended upgrades"
-apt-get install -y unattended-upgrades apt-listchanges
+$minimal_apt_get_install unattended-upgrades apt-listchanges
 cp $PWD/etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
 service unattended-upgrades restart
 
 # install apparmor
-apt-get install -y apparmor apparmor-profiles apparmor-utils
+$minimal_apt_get_install apparmor apparmor-profiles apparmor-utils
 sed -i.bak 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="\1 apparmor=1 security=apparmor"/' /etc/default/grub
 update-grub
 
 # install ntp (tlsdate is no longer available in Debian stable)
-apt-get install -y ntp
+$minimal_apt_get_install ntp
 
 # install monit
-apt-get install -y monit
+$minimal_apt_get_install monit
 cp $PWD/etc/monit/conf.d/tor-relay.conf /etc/monit/conf.d/tor-relay.conf
 service monit restart
 
